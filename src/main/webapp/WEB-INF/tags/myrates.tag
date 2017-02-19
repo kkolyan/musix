@@ -1,12 +1,6 @@
 <%@ tag import="com.nplekhanov.musix.Rating" %>
 <%@ tag import="com.nplekhanov.musix.Repository" %>
-<%@ tag import="com.nplekhanov.musix.Role" %><%--
-  Created by IntelliJ IDEA.
-  User: nplekhanov
-  Date: 2/19/2017
-  Time: 10:10 PM
-  To change this template use File | Settings | File Templates.
---%>
+<%@ tag import="com.nplekhanov.musix.Role" %>
 <%@ tag import="static org.apache.commons.lang3.StringEscapeUtils.*" %>
 <%@ tag import="com.nplekhanov.musix.TrackInfo" %>
 <%@ tag import="com.nplekhanov.musix.User" %>

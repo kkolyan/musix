@@ -4,17 +4,30 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by nplekhanov on 2/18/2017.
  */
 public class LoginServlet extends HttpServlet {
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        if (!getConfigFile().exists()) {
+            throw new IllegalStateException("can't find "+ getConfigFile().getAbsolutePath());
+        }
+    }
+
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Repository repository = (Repository) req.getServletContext().getAttribute("repository");
@@ -25,19 +38,35 @@ public class LoginServlet extends HttpServlet {
         }
         req.getSession().setAttribute("authVars", authVars);
 
+        Properties props = getConfig();
+
         String userId = authVars.get("uid");
-        String appId = "5882753";
-        String secretKey = "PUbzdAid2d9hcaoIN1OL";
+        String appId = props.getProperty("vk.appId");
+        String secretKey = props.getProperty("vk.secretKey");
+
+        String devIp = props.getProperty("devIp");
 
         String expectedHash = md5(appId+userId+secretKey);
 
         String hash = req.getParameter("hash");
 
-        if (expectedHash.equals(hash) || hash.equals("testf2935ihyrklhwsvl")) {
+        if (expectedHash.equals(hash) || req.getRemoteAddr().equals(devIp)) {
             repository.addUser(userId, authVars.get("first_name") + " " + authVars.get("last_name"), authVars.get("photo"));
             req.getSession().setAttribute("userId", userId);
             resp.sendRedirect("rate.jsp");
         }
+    }
+
+    public static Properties getConfig() throws IOException {
+        Properties props = new Properties();
+        try (FileInputStream stream = new FileInputStream(getConfigFile())){
+            props.load(stream);
+        }
+        return props;
+    }
+
+    private static File getConfigFile() {
+        return new File(System.getProperty("user.home"), "musix.cfg");
     }
 
     public static String md5(String input) {

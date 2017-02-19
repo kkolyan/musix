@@ -21,7 +21,7 @@ if (request.getServerName().equals("localhost")) {
             last_name
             <input name="last_name"/>
         </label>
-        <input type="hidden" name="hash" value="testf2935ihyrklhwsvl"/>
+        <input type="hidden" name="hash" value=""/>
         <input type="submit" value="Войти"/>
     </form>
     <%
