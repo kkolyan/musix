@@ -1,0 +1,60 @@
+
+table {
+    border-collapse: collapse;
+}
+
+td, th {
+    border: solid 1px #9c9c9c;
+}
+
+th {
+    background-color: #dedede;
+}
+
+p.member {
+    margin: 0 10px;
+}
+
+.radio-option:hover {
+    background-color: #ccc;
+}
+.radio-option label {
+    display: block;
+}
+input:checked + span {
+    background-color: rgba(0, 181, 255, 0.38);
+}
+table {
+    border-collapse: collapse;
+}
+
+td, th {
+    border: solid 1px #9c9c9c;
+    padding: 0px 10px;
+}
+
+th {
+    background-color: #dedede;
+}
+.dislike {
+    color: #888;
+}
+
+.like {
+    color: #636363;
+    font-weight: bold;
+}
+
+.verylike {
+    /*color: #00219c;*/
+    font-weight: bold;
+}
+
+.cant {
+    color: #888;
+}
+
+.menu {
+    padding: 5px 15px;
+    margin: 5px 5px;
+}
