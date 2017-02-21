@@ -2,6 +2,8 @@
 <%@ page import="com.nplekhanov.musix.Repository" %>
 <%@ page import="static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4" %>
 <%@ page import="com.nplekhanov.musix.AuthException" %>
+<%@ page import="com.nplekhanov.musix.Chart" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     String userId = (String) session.getAttribute("userId");
@@ -13,4 +15,13 @@
 %>
 <div>Привет, <b><%=escapeHtml4(user.getFullName())%></b></div>
 <a class="menu" href="rate.jsp">Голосовать</a>
-<a class="menu" href="chart.jsp">Чарт</a>
+
+<%
+for (Chart chart: repository.getCharts().values()) {
+    if (chart.getName().isEmpty()) {
+        %><a class="menu" href="chart.jsp">Рабочий чарт</a><%
+    } else {
+        %><a class="menu" href="chart.jsp?chartName=<%=URLEncoder.encode(chart.getName(), "utf8")%>"><%=escapeHtml4(chart.getName())%></a><%
+    }
+}
+%>

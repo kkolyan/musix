@@ -15,5 +15,8 @@ public interface Repository {
     void addRating(String userId, String track, Map<Role, Rating> ratings);
     String getDump();
     void setDump(String content);
-    List<Composition> calculateChart();
+    List<Composition> calculateChart(String chartName);
+    Map<String, Chart> getCharts();
+
+    void fixChart(String chartName);
 }

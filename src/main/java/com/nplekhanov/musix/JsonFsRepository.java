@@ -1,6 +1,5 @@
 package com.nplekhanov.musix;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.io.FileUtils;
@@ -8,14 +7,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,12 +18,12 @@ public class JsonFsRepository implements Repository {
     private File file = new File(System.getProperty("user.home"), "musix.json");
 
     public void addUser(String userId, String fullName, String photoUrl) {
-        change(users -> {
-            User user = users.get(userId);
+        change(db -> {
+            User user = db.indexedUsers().get(userId);
             if (user == null) {
                 user = new User();
                 user.setUid(userId);
-                users.put(userId, user);
+                db.indexedUsers().put(userId, user);
                 user.setRatingByTrack(new HashMap<>());
             }
             if (fullName != null && !fullName.trim().isEmpty() && !fullName.equals("null null")) {
@@ -45,15 +37,15 @@ public class JsonFsRepository implements Repository {
     }
 
     public Map<String, User> getUsers() {
-        return read(x -> x);
+        return read(Database::indexedUsers);
     }
 
     public User getUser(String userId) {
-        return read(users -> users.get(userId));
+        return read(db -> db.indexedUsers().get(userId));
     }
 
-    private Collection<String> getTracks() {
-        return read(users -> users.values().stream()
+    private NavigableSet<String> getTracks() {
+        return read(db -> db.getUsers().stream()
                 .flatMap(x -> x.getRatingByTrack().keySet().stream())
                 .distinct()
                 .collect(Collectors.toCollection(TreeSet::new)));
@@ -70,8 +62,8 @@ public class JsonFsRepository implements Repository {
                 this.userId = userId;
             }
         }
-        return read(users -> {
-            Map<String, Set<String>> usersByTrack = users.values().stream()
+        return read(db -> {
+            Map<String, Set<String>> usersByTrack = db.getUsers().stream()
                     .flatMap(user -> user.getRatingByTrack().keySet().stream().map(track -> new TrackUser(track, user.getUid())))
                     .collect(Collectors.groupingBy(x -> x.track, Collectors.mapping(x -> x.userId, Collectors.toSet())));
             ArrayList<TrackInfo> infos = new ArrayList<>();
@@ -90,8 +82,8 @@ public class JsonFsRepository implements Repository {
     }
 
     public void addRating(String userId, String track, Map<Role, Rating> ratings) {
-        change(users -> {
-            User user = users.get(userId);
+        change(db -> {
+            User user = db.indexedUsers().get(userId);
             user.getRatingByTrack().put(track.trim(), ratings);
             return true;
         });
@@ -101,11 +93,11 @@ public class JsonFsRepository implements Repository {
     }
 
     private interface UsersChange {
-        boolean tryChange(Map<String, User> users);
+        boolean tryChange(Database db);
     }
 
     private interface UsersRead<T> {
-        T read(Map<String, User> users);
+        T read(Database db);
     }
 
     public synchronized String getDump() {
@@ -126,7 +118,7 @@ public class JsonFsRepository implements Repository {
     }
 
     @Override
-    public List<Composition> calculateChart() {
+    public List<Composition> calculateChart(String chartName) {
         class UserTrackRating {
             final String userId;
             final String track;
@@ -149,8 +141,9 @@ public class JsonFsRepository implements Repository {
                 this.rating = rating;
             }
         }
-        return read(users -> {
-            Map<String, List<UserTrackRating>> ratingsByTrack = users.values().stream()
+        Chart chart = getCharts().get(chartName);
+        return read(db -> {
+            Map<String, List<UserTrackRating>> ratingsByTrack = db.getUsers().stream()
                     .flatMap(user -> user.getRatingByTrack().entrySet().stream()
                             .map(rating -> new UserTrackRating(user.getUid(), rating.getKey(), rating.getValue())))
                     .collect(Collectors.groupingBy(x -> x.track));
@@ -158,6 +151,9 @@ public class JsonFsRepository implements Repository {
             List<Composition> compositions = new ArrayList<>();
 
             ratingsByTrack.forEach((track, trackRatings) -> {
+                if (!chart.getTracks().contains(track)) {
+                    return;
+                }
                 Map<Role, Map<Rating, Set<String>>> ratingsForUsers = trackRatings.stream()
                         .flatMap(x -> x.ratings.entrySet().stream().map(y -> new UserRoleRating(x.userId, y.getKey(), y.getValue())))
                         .collect(
@@ -166,34 +162,61 @@ public class JsonFsRepository implements Repository {
                                                 Collectors.mapping(x -> x.userId,
                                                         Collectors.toSet()))));
 
-                Composition c = Chart.compose(track, ratingsForUsers, users);
-                if (c != null) {
-                    compositions.add(c);
-                }
+                Composition c = ChartBuilder.compose(track, ratingsForUsers, db.indexedUsers());
+                compositions.add(c);
             });
             compositions.sort(Comparator.comparing(x -> -1.0 * x.getRating() / x.getUsersRated().size()));
             return compositions;
         });
     }
 
+    @Override
+    public Map<String, Chart> getCharts() {
+        Map<String, Chart> charts = new TreeMap<>();
+        Chart defaultChart = new Chart();
+        defaultChart.setName("");
+        defaultChart.setTracks(getTracks());
+        charts.put("", defaultChart);
+
+        read(Database::getCharts)
+                .forEach(chart -> charts.put(chart.getName(), chart));
+        return charts;
+    }
+
+    @Override
+    public void fixChart(String chartName) {
+        Chart chart = new Chart();
+        chart.setName(chartName);
+        chart.setTracks(getTracks());
+        change(db -> {
+            if (db.getCharts().stream().anyMatch(x -> x.getName().equals(chartName))) {
+                throw new IllegalStateException("chart with such name already exists");
+            }
+            db.getCharts().add(chart);
+            return true;
+        });
+    }
+
     private synchronized void change(UsersChange callback) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            Map<String,User> usersMap;
+            Database db;
             try {
-                Collection<User> users = objectMapper.readValue(file, new TypeReference<Collection<User>>() {});
-                usersMap = users.stream().collect(Collectors.toMap(User::getUid, x -> x));
+                db = objectMapper.readValue(file, Database.class);
             } catch (FileNotFoundException e) {
-                usersMap = new HashMap<>();
+                db = new Database();
+                db.setUsers(new ArrayList<>());
+                db.setCharts(new ArrayList<>());
             }
 
-            usersMap.values().forEach(this::fixTrackNames);
+            db.getUsers().forEach(this::fixTrackNames);
 
-            boolean modified = callback.tryChange(usersMap);
+            boolean modified = callback.tryChange(db);
 
             if (modified) {
+                db.setUsers(db.indexedUsers().values());
                 // to avoid inconsistent write serialization and write are split
-                String json = objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true).writeValueAsString(new ArrayList<>(usersMap.values()));
+                String json = objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true).writeValueAsString(db);
                 FileUtils.write(file, json, "UTF-8");
             }
         } catch (IOException e) {
@@ -202,20 +225,21 @@ public class JsonFsRepository implements Repository {
     }
 
     private synchronized <T> T read(UsersRead<T> callback) {
-        Map<String,User> usersMap;
+        Database db;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String json = FileUtils.readFileToString(file, "UTF-8");
-            Collection<User> users = objectMapper.readValue(json, new TypeReference<Collection<User>>() {});
-            usersMap = users.stream().collect(Collectors.toMap(User::getUid, x -> x));
+            db = objectMapper.readValue(json, Database.class);
 
         } catch (FileNotFoundException e) {
-            usersMap = new HashMap<>();
+            db = new Database();
+            db.setUsers(new ArrayList<>());
+            db.setCharts(new ArrayList<>());
         } catch (IOException e) {
             throw new IllegalStateException(e);
 
         }
-        return callback.read(usersMap);
+        return callback.read(db);
     }
 
     private void fixTrackNames(User user) {

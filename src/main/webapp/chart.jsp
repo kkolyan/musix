@@ -9,7 +9,8 @@
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="java.util.Set" %><%--
+<%@ page import="java.util.Set" %>
+<%@ page import="java.time.LocalDate" %><%--
   Created by IntelliJ IDEA.
   User: nplekhanov
   Date: 2/19/2017
@@ -62,10 +63,24 @@
 %>
 <%
     Repository repository = (Repository) application.getAttribute("repository");
-    List<Composition> compositions = repository.calculateChart();
+    String chartName = request.getParameter("chartName");
+    if (chartName == null) {
+        chartName = "";
+    }
+    List<Composition> compositions = repository.calculateChart(chartName);
     Map<String, User> users = repository.getUsers();
 %>
 <jsp:include page="header.jsp"/>
+<h4>
+    <%
+        if (!chartName.isEmpty()) {
+
+            %><%=escapeHtml4(chartName)%>  <%
+        } else {
+            %>Рабочий чарт<%
+        }
+    %>
+</h4>
 <table>
     <tr>
         <th>Трэк</th>
@@ -132,5 +147,17 @@
     "Не хочу": -2 (для инуструментов не учитывается)<br/>
 
 </p>
+<% if (chartName.isEmpty()) {
+
+    %>
+    <form action="FixChart">
+        <label>
+            <input name="chartName" value="<%=escapeHtml4(LocalDate.now().toString())%>"/>
+        <input type="submit" value="Создать"/>
+            чарт с таким списком треков
+        </label>
+    </form>
+    <%
+}%>
 </body>
 </html>

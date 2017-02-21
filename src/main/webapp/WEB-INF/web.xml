@@ -18,6 +18,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>FixChart</servlet-name>
+        <servlet-class>com.nplekhanov.musix.FixChartServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FixChart</servlet-name>
+        <url-pattern>/FixChart</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>Rate</servlet-name>
         <servlet-class>com.nplekhanov.musix.RateServlet</servlet-class>
     </servlet>
