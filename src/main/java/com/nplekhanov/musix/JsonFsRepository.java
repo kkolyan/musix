@@ -143,7 +143,11 @@ public class JsonFsRepository implements Repository {
         }
         Chart chart = getCharts().get(chartName);
         return read(db -> {
-            Map<String, List<UserTrackRating>> ratingsByTrack = db.getUsers().stream()
+            Band band = db.indexedBands().get(db.getDefaultBand());
+            Collection<User> members = db.getUsers().stream()
+                    .filter(user -> band.getMembers().contains(user.getUid()))
+                    .collect(Collectors.toList());
+            Map<String, List<UserTrackRating>> ratingsByTrack = members.stream()
                     .flatMap(user -> user.getRatingByTrack().entrySet().stream()
                             .map(rating -> new UserTrackRating(user.getUid(), rating.getKey(), rating.getValue())))
                     .collect(Collectors.groupingBy(x -> x.track));
@@ -162,7 +166,7 @@ public class JsonFsRepository implements Repository {
                                                 Collectors.mapping(x -> x.userId,
                                                         Collectors.toSet()))));
 
-                Composition c = ChartBuilder.compose(track, ratingsForUsers, db.indexedUsers());
+                Composition c = ChartBuilder.compose(track, ratingsForUsers, members.stream().collect(Collectors.toMap(User::getUid, x -> x)));
                 compositions.add(c);
             });
             compositions.sort(Comparator.comparing(x -> -1.0 * x.getRating() / x.getUsersRated().size()));

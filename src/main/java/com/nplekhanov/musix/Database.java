@@ -12,6 +12,9 @@ public class Database {
     private Collection<User> users;
     private List<Chart> charts;
     private transient Map<String, User> indexedUsers;
+    private transient Map<String, Band> indexedBands;
+    private Collection<Band> bands;
+    private String defaultBand;
 
     public Map<String,User> indexedUsers() {
         if (indexedUsers == null) {
@@ -19,6 +22,14 @@ public class Database {
                     .collect(Collectors.toMap(User::getUid, x -> x));
         }
         return indexedUsers;
+    }
+
+    public Map<String,Band> indexedBands() {
+        if (indexedBands == null) {
+            indexedBands = bands.stream()
+                    .collect(Collectors.toMap(Band::getName, x -> x));
+        }
+        return indexedBands;
     }
 
     public Collection<User> getUsers() {
@@ -35,5 +46,21 @@ public class Database {
 
     public void setCharts(List<Chart> charts) {
         this.charts = charts;
+    }
+
+    public Collection<Band> getBands() {
+        return bands;
+    }
+
+    public void setBands(Collection<Band> bands) {
+        this.bands = bands;
+    }
+
+    public String getDefaultBand() {
+        return defaultBand;
+    }
+
+    public void setDefaultBand(String defaultBand) {
+        this.defaultBand = defaultBand;
     }
 }
