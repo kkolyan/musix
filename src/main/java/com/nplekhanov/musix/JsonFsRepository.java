@@ -24,7 +24,7 @@ public class JsonFsRepository implements Repository {
                 user = new User();
                 user.setUid(userId);
                 db.indexedUsers().put(userId, user);
-                user.setRatingByTrack(new HashMap<>());
+                user.setOpinionByTrack(new HashMap<>());
             }
             if (fullName != null && !fullName.trim().isEmpty() && !fullName.equals("null null")) {
                 user.setFullName(fullName);
@@ -38,6 +38,13 @@ public class JsonFsRepository implements Repository {
 
     public Map<String, User> getUsers() {
         return read(Database::indexedUsers);
+    }
+
+    @Override
+    public Collection<User> getDefaultBand() {
+        return read(db -> db.indexedBands().get(db.getDefaultBand()).getMembers().stream()
+                .map(x -> db.indexedUsers().get(x))
+                .collect(Collectors.toList()));
     }
 
     public User getUser(String userId) {
@@ -89,7 +96,24 @@ public class JsonFsRepository implements Repository {
         });
     }
 
+    @Override
+    public void addOpinion(String userId, String track, Opinion opinion) {
+        change(db -> {
+            User user = db.indexedUsers().get(userId);
+            user.getOpinionByTrack().put(track.trim(), opinion);
+            return true;
+        });
+    }
+
     public void init() {
+        change(db -> {
+            for (User u: db.getUsers()) {
+                if (u.getOpinionByTrack() == null) {
+                    fillOpinions(u);
+                }
+            }
+            return true;
+        });
     }
 
     private interface UsersChange {
@@ -213,6 +237,8 @@ public class JsonFsRepository implements Repository {
                 db.setCharts(new ArrayList<>());
             }
 
+//            db.getUsers().forEach(this::fillOpinions);
+
             db.getUsers().forEach(this::fixTrackNames);
 
             boolean modified = callback.tryChange(db);
@@ -226,6 +252,24 @@ public class JsonFsRepository implements Repository {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private void fillOpinions(User user) {
+
+        Map<String, Opinion> ot = new HashMap<>();
+        user.getRatingByTrack().forEach((track, ratings) -> {
+            Opinion op = new Opinion();
+            if (ratings.get(Role.LISTEN) == Rating.DISLIKE) {
+                op.setAttitude(Attitude.UNACCEPTABLE);
+            } else if (ratings.containsValue(Rating.LIKE) || ratings.containsValue(Rating.VERY_LIKE)) {
+                op.setAttitude(Attitude.DESIRED);
+            } else {
+                op.setAttitude(Attitude.ACCEPTABLE);
+            }
+            op.setComment("");
+            ot.put(track, op);
+        });
+        user.setOpinionByTrack(ot);
     }
 
     private synchronized <T> T read(UsersRead<T> callback) {
@@ -243,6 +287,7 @@ public class JsonFsRepository implements Repository {
             throw new IllegalStateException(e);
 
         }
+//        db.getUsers().forEach(this::fillOpinions);
         return callback.read(db);
     }
 

@@ -9,7 +9,10 @@ public class User {
     private String uid;
     private String fullName;
     private String photoUrl;
+    @Deprecated
     private Map<String, Map<Role, Rating>> ratingByTrack;
+
+    private Map<String, Opinion> opinionByTrack;
 
     public String getUid() {
         return uid;
@@ -27,12 +30,12 @@ public class User {
         this.fullName = fullName;
     }
 
-    public Map<String, Map<Role, Rating>> getRatingByTrack() {
-        return ratingByTrack;
+    public Map<String, Opinion> getOpinionByTrack() {
+        return opinionByTrack;
     }
 
-    public void setRatingByTrack(Map<String, Map<Role, Rating>> ratingByTrack) {
-        this.ratingByTrack = ratingByTrack;
+    public void setOpinionByTrack(Map<String, Opinion> opinionByTrack) {
+        this.opinionByTrack = opinionByTrack;
     }
 
     public String getPhotoUrl() {
@@ -41,5 +44,13 @@ public class User {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public Map<String, Map<Role, Rating>> getRatingByTrack() {
+        return ratingByTrack;
+    }
+
+    public void setRatingByTrack(Map<String, Map<Role, Rating>> ratingByTrack) {
+        this.ratingByTrack = ratingByTrack;
     }
 }

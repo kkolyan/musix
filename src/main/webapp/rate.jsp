@@ -7,6 +7,8 @@
 <%@ page import="java.util.Collections" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="com.nplekhanov.musix.Attitude" %>
+<%@ page import="com.nplekhanov.musix.Opinion" %>
 <%@ taglib prefix="mx" tagdir="/WEB-INF/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
@@ -18,29 +20,17 @@
 <body>
 <jsp:include page="header.jsp"/>
 <%!
-    private String roleLabel(Role role) {
-        switch (role) {
+    private String attitudeLabel(Attitude a) {
+        switch (a) {
 
-            case LISTEN: return "Слушать";
-            case DRUMS: return "Играть барабанах";
-            case LEAD_VOCAL: return "Петь";
-            case BASS: return "Играть на басу";
-            case RHYTM_GUITAR: return "Играть на ритм- или единственной гитаре";
-            case SOLO_GUITAR: return "Играть на второй (соло-) гитаре, если она есть";
-            case KEYBOARD: return "Играть на клавишных";
+            case DESIRED:
+                return "Поддерживаю";
+            case ACCEPTABLE:
+                return "Согласен";
+            case UNACCEPTABLE:
+                return "Протестую";
         }
-        throw new IllegalArgumentException(role+"");
-    }
-
-    private String ratingLabel(Rating rating) {
-        switch (rating) {
-            case DISLIKE: return "Не хочу";
-            case NEUTRAL: return "Согласен";
-            case LIKE: return "Хочу";
-            case VERY_LIKE: return "Очень хочу";
-            case NOT_ENOUGH_SKILLS_OR_EQUIPMENT: return "Не хватает навыка или инструмента";
-        }
-        throw new IllegalStateException(""+rating);
+        throw new IllegalArgumentException(a+"");
     }
 %>
 <%
@@ -50,66 +40,56 @@
     User user = repository.getUser(userId);
 
     String track = request.getParameter("track");
+
+    Opinion lastOpinion = user.getOpinionByTrack().get(track);
+    Attitude lastAttitude = null;
+    String lastComment = "";
+    boolean lastNotEnoughSkills = false;
+    if (lastOpinion != null) {
+        lastAttitude = lastOpinion.getAttitude();
+        lastComment = lastOpinion.getComment();
+        lastNotEnoughSkills = lastOpinion.isNotEnoughSkills();
+    }
 %>
 <%
 if (track != null) {
     %>
     <b><%=escapeHtml4(track)%></b>
     <div>
-        <a href="rate.jsp">Проголосовать за другой</a>
-    </div>
-    <div>
         <form action="Rate" method="post">
             <input type="hidden" name="track" value="<%=escapeHtml4(track)%>"/>
-            <%
-            Map<Role, Rating> previousRatings = user.getRatingByTrack().get(track);
-            for (Role role: Role.values()) {
-                Rating previousRating;
-                if (previousRatings == null) {
-                    previousRating = role.getDefaultRating();
-                } else {
-                    previousRating = previousRatings.get(role);
-                }
-                %>
-                <fieldset>
-                    <legend> <b><%=roleLabel(role)%></b> </legend>
-                    <div>
-                        <%
-                            for (Rating rating: Rating.values()) {
-                                if (!role.getSupportedRatings().contains(rating)) {
-                                    continue;
-                                }
-                        %>
-                        <label class="radio-option">
-                            <input type="radio" name="<%=role%>" value="<%=rating%>"
-                                    <%   if (previousRating == rating) {%> checked <%} %>
-                            />
-                            <span><%=ratingLabel(rating)%></span>
-                        </label>
-                        <%
-                            }
-                        %>
-                    </div>
-                </fieldset>
-                <%
-            }
-            %>
+
+            <fieldset>
+                <legend> <b>Хотели бы включить в репертуар?</b> </legend>
+                <div>
+                    <%
+                        for (Attitude a: Attitude.values()) {
+                    %>
+                    <label class="radio-option">
+                        <input type="radio" name="attitude" value="<%=a%>"
+                                <% if (lastAttitude == a) {%> checked <%} %>
+                        />
+                        <span><%=attitudeLabel(a)%></span>
+                    </label>
+                    <%
+                        }
+                    %>
+                    <label>
+                        Пояснение
+                        <input name="comment" value="<%=escapeHtml4(lastComment)%>"/>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="notEnoughSkills" <%if (lastNotEnoughSkills) {%> checked <%}%>/>
+                    </label>
+                </div>
+            </fieldset>
+
             <input type="submit" value="Проголосовать"/>
         </form>
     </div>
     <%
 } else {
     %>
-    <div>
-        <form>
-            <label>
-                Новый трек
-                <input name="track"/>
-            </label>
-            <input type="submit" value="Добавить"/>
-        </form>
-    </div>
-    <mx:myrates userId="<%=userId%>"/>
 
     <%
 }

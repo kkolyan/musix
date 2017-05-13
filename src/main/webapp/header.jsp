@@ -13,15 +13,5 @@
     Repository repository = (Repository) application.getAttribute("repository");
     User user = repository.getUser(userId);
 %>
-<div>Привет, <b><%=escapeHtml4(user.getFullName())%></b></div>
-<a class="menu" href="rate.jsp">Голосовать</a>
+<div>Привет, <b><%=escapeHtml4(user.getFullName())%></b> <a class="menu" href="opinions.jsp">Мнения</a> </div>
 
-<%
-for (Chart chart: repository.getCharts().values()) {
-    if (chart.getName().isEmpty()) {
-        %><a class="menu" href="chart.jsp">Рабочий чарт</a><%
-    } else {
-        %><a class="menu" href="chart.jsp?chartName=<%=URLEncoder.encode(chart.getName(), "utf8")%>"><%=escapeHtml4(chart.getName())%></a><%
-    }
-}
-%>

@@ -11,6 +11,6 @@
     <title>Title</title>
 </head>
 <body>
-<% response.sendRedirect("rate.jsp");%>
+<% response.sendRedirect("opinions.jsp");%>
 </body>
 </html>

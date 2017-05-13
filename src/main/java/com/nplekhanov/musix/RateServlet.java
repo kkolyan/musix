@@ -5,8 +5,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by nplekhanov on 2/19/2017.
@@ -17,13 +15,16 @@ public class RateServlet extends HttpServlet {
         Repository repository = (Repository) req.getServletContext().getAttribute("repository");
         String userId = (String) req.getSession().getAttribute("userId");
         String track = req.getParameter("track");
-        Map<Role, Rating> ratings = new HashMap<>();
-        for (Role role: Role.values()) {
-            String ratingText = req.getParameter(role.name());
-            ratings.put(role, Rating.valueOf(ratingText));
-        }
-        repository.addRating(userId, track, ratings);
+        String notEnoughSkills = req.getParameter("notEnoughSkills");
+        String comment = req.getParameter("comment");
+        String attitude = req.getParameter("attitude");
 
-        resp.sendRedirect("rate.jsp");
+        Opinion opinion = new Opinion();
+        opinion.setAttitude(Attitude.valueOf(attitude));
+        opinion.setComment(comment);
+        opinion.setNotEnoughSkills("on".equals(notEnoughSkills));
+        repository.addOpinion(userId, track, opinion);
+
+        resp.sendRedirect("opinions.jsp");
     }
 }
