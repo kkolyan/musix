@@ -8,13 +8,13 @@ import java.util.Map;
 public class OpinionTrack {
     private String track;
     private Map<String,Opinion> opinionByUser;
-    private Map<User, Long> ratedWithinGroup;
+    private Map<User, Double> ratedWithinGroup;
 
-    public Map<User, Long> getRatedWithinGroup() {
+    public Map<User, Double> getRatedWithinGroup() {
         return ratedWithinGroup;
     }
 
-    public void setRatedWithinGroup(Map<User, Long> ratedWithinGroup) {
+    public void setRatedWithinGroup(Map<User, Double> ratedWithinGroup) {
         this.ratedWithinGroup = ratedWithinGroup;
     }
 

@@ -79,14 +79,30 @@ public class RepositoryUsingMusix implements Musix {
                     .collect(Collectors.toSet());
             if (ratings.size() == 1 && ratings.iterator().next().equals(0L)) {
                 db.indexedUsers().get(userId).getOpinionByTrack().values().forEach(x -> {
-                    x.setRating(100 - x.getAttitude().ordinal() * 100);
+                    x.setRating(1);
                 });
+                return true;
+            }
+            int i = 0;
+            for (Opinion opinion: db.indexedUsers().get(userId).getOpinionByTrack().values()) {
+
+                if (opinion.getRating() < 0) {
+                    opinion.setRating(0);
+                    i ++;
+                }
+                if (opinion.getRating() > 3) {
+                    opinion.setRating(3);
+                    i ++;
+                }
+            }
+            if (i > 0) {
                 return true;
             }
             return false;
         });
         return repository.read(db -> {
-            Comparator<Map.Entry<String, Opinion>> cmp = Comparator.comparing(x -> -x.getValue().getRating());
+            Comparator<Map.Entry<String, Opinion>> cmp = Comparator.comparing(x -> x.getValue().getAttitude().ordinal());
+            cmp = cmp.thenComparing(x -> -x.getValue().getRating());
             cmp = cmp.thenComparing(Map.Entry::getKey);
             return db.indexedUsers().get(userId).getOpinionByTrack().entrySet().stream()
                     .sorted(cmp)
@@ -100,6 +116,12 @@ public class RepositoryUsingMusix implements Musix {
             User user = db.indexedUsers().get(userId);
             Opinion opinion = user.getOpinionByTrack().get(track);
             opinion.setRating(opinion.getRating() + step);
+            if (opinion.getRating() < 0) {
+                opinion.setRating(0);
+            }
+            if (opinion.getRating() > 3) {
+                opinion.setRating(3);
+            }
             return true;
         });
     }
@@ -136,17 +158,24 @@ public class RepositoryUsingMusix implements Musix {
         for (User user: users) {
             for (OpinionTrack ot: tracks) {
                 Opinion o = user.getOpinionByTrack().get(ot.getTrack());
-                ot.getRatedWithinGroup().put(user, o == null ? 0L : o.getRating());
+                double rating;
+                if (o != null) {
+                    rating = o.getRating();
+                } else {
+                    rating = 0.0;
+                }
+                ot.getRatedWithinGroup().put(user, rating);
             }
-            long sum = tracks.stream().mapToLong(x -> x.getRatedWithinGroup().get(user)).sum();
+            double sum = tracks.stream()
+                    .mapToDouble(x -> x.getRatedWithinGroup().get(user)).sum();
             if (sum > 0) {
                 for (OpinionTrack ot: tracks) {
-                    long normalized = 100 * ot.getRatedWithinGroup().get(user) / sum;
+                    double normalized = tracks.size() * ot.getRatedWithinGroup().get(user) / sum;
                     ot.getRatedWithinGroup().put(user, normalized);
                 }
             }
         }
-        tracks.sort(Comparator.comparing(x -> -x.getRatedWithinGroup().values().stream().mapToLong(Long::longValue).sum()));
+        tracks.sort(Comparator.comparing(x -> -x.getRatedWithinGroup().values().stream().mapToDouble(Double::doubleValue).sum()));
         return tracks;
     }
 

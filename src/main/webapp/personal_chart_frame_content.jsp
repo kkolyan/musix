@@ -32,12 +32,14 @@
         List<Map.Entry<String, Opinion>> orderedTracks = musix.getOrderedTracks(userId);
 
         NavigableSet<Integer> steps = new TreeSet<>();
-        steps.addAll(Arrays.asList(1, 10, 20, 50, 100));
+        steps.addAll(Arrays.asList(1));
 
         for (Map.Entry<String, Opinion> track: orderedTracks) {
+            %> <div  <% if (track.getKey().equals(request.getParameter("highlight"))) {%> style="font-weight: bold;" <%}%> ><%
+            if (track.getValue().getAttitude() != Attitude.UNACCEPTABLE) {
             %>
 
-        <div  <% if (track.getKey().equals(request.getParameter("highlight"))) {%> style="font-weight: bold;" <%}%> >
+
             <%
             if (Objects.equals(currentUserId, userId)) {
                 for (Integer step: steps.descendingSet()) {
@@ -53,25 +55,26 @@
 
             %>
 
-            <input disabled style="width: 30px; background-color: white; border: none; text-align: right"  value="<%= track.getValue().getRating()%>"/>
+            <input disabled style="width: 30px; background-color: white; border: none; text-align: center"  value="<%= track.getValue().getRating()%>"/>
+            <%
+                if (Objects.equals(currentUserId, userId)) {
+                    for (Integer step: steps) {
+                        %>
+                        <form action="PersonalTrackRating" style="display: inline;" method="post">
+                            <input type="hidden" name="track" value="<%=escapeHtml4(track.getKey())%>"/>
+                            <input type="hidden" name="step" value="-<%=step%>"/>
+                            <input type="submit" value="-<%=step%>"/>
+                        </form>
+                        <%
+                    }
+                }
+            }
+            %>
 
             <a target="_parent" name="<%=escapeHtml4(track.getKey())%>" class="<%=track.getValue().getAttitude()%>" href="rate.jsp?track=<%=escapeHtml4(track.getKey())%>">
                 <%=escapeHtml4(track.getKey())%>
             </a>
 
-            <%
-            if (Objects.equals(currentUserId, userId)) {
-                for (Integer step: steps) {
-                    %>
-                    <form action="PersonalTrackRating" style="display: inline;" method="post">
-                        <input type="hidden" name="track" value="<%=escapeHtml4(track.getKey())%>"/>
-                        <input type="hidden" name="step" value="-<%=step%>"/>
-                        <input type="submit" value="-<%=step%>"/>
-                    </form>
-                    <%
-                }
-            }
-            %>
         </div>
             <%
         }
