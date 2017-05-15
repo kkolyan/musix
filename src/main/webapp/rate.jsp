@@ -1,12 +1,6 @@
-<%@ page import="com.nplekhanov.musix.Repository" %>
+<%@ page import="com.nplekhanov.musix.Musix" %>
 <%@ page import="com.nplekhanov.musix.User" %>
-<%@ page import="com.nplekhanov.musix.TrackInfo" %>
 <%@ page import="static org.apache.commons.lang3.StringEscapeUtils.*" %>
-<%@ page import="com.nplekhanov.musix.Role" %>
-<%@ page import="com.nplekhanov.musix.Rating" %>
-<%@ page import="java.util.Collections" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.HashMap" %>
 <%@ page import="com.nplekhanov.musix.Attitude" %>
 <%@ page import="com.nplekhanov.musix.Opinion" %>
 <%@ taglib prefix="mx" tagdir="/WEB-INF/tags" %>
@@ -36,8 +30,8 @@
 <%
 
     String userId = (String) session.getAttribute("userId");
-    Repository repository = (Repository) application.getAttribute("repository");
-    User user = repository.getUser(userId);
+    Musix musix = (Musix) application.getAttribute("musix");
+    User user = musix.getUser(userId);
 
     String track = request.getParameter("track");
 
@@ -59,30 +53,33 @@ if (track != null) {
         <form action="Rate" method="post">
             <input type="hidden" name="track" value="<%=escapeHtml4(track)%>"/>
 
-            <fieldset>
-                <legend> <b>Хотели бы включить в репертуар?</b> </legend>
+            <div>
+                <%
+                    for (Attitude a: Attitude.values()) {
+                %>
+                <label class="radio-option">
+                    <input type="radio" name="attitude" value="<%=a%>"
+                            <% if (lastAttitude == a) {%> checked <%} %>
+                    />
+                    <span><%=attitudeLabel(a)%></span>
+                </label>
+                <%
+                    }
+                %>
                 <div>
-                    <%
-                        for (Attitude a: Attitude.values()) {
-                    %>
-                    <label class="radio-option">
-                        <input type="radio" name="attitude" value="<%=a%>"
-                                <% if (lastAttitude == a) {%> checked <%} %>
-                        />
-                        <span><%=attitudeLabel(a)%></span>
-                    </label>
-                    <%
-                        }
-                    %>
                     <label>
-                        Пояснение
+                        Комментарий
                         <input name="comment" value="<%=escapeHtml4(lastComment)%>"/>
                     </label>
+                </div>
+                <div>
+
                     <label>
+                        Недостаточно навыка
                         <input type="checkbox" name="notEnoughSkills" <%if (lastNotEnoughSkills) {%> checked <%}%>/>
                     </label>
                 </div>
-            </fieldset>
+            </div>
 
             <input type="submit" value="Проголосовать"/>
         </form>

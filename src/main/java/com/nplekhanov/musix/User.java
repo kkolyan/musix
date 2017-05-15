@@ -9,8 +9,6 @@ public class User {
     private String uid;
     private String fullName;
     private String photoUrl;
-    @Deprecated
-    private Map<String, Map<Role, Rating>> ratingByTrack;
 
     private Map<String, Opinion> opinionByTrack;
 
@@ -44,13 +42,5 @@ public class User {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
-    }
-
-    public Map<String, Map<Role, Rating>> getRatingByTrack() {
-        return ratingByTrack;
-    }
-
-    public void setRatingByTrack(Map<String, Map<Role, Rating>> ratingByTrack) {
-        this.ratingByTrack = ratingByTrack;
     }
 }

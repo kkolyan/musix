@@ -9,9 +9,11 @@ import javax.servlet.ServletContextListener;
 public class JsonFsRepositoryPopulator implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        JsonFsRepository repository = new JsonFsRepository();
-        repository.init();
+        JsonRepository repository = new JsonRepository();
+        RepositoryUsingMusix musix = new RepositoryUsingMusix(repository);
+        musix.init();
         servletContextEvent.getServletContext().setAttribute("repository", repository);
+        servletContextEvent.getServletContext().setAttribute("musix", musix);
     }
 
     @Override

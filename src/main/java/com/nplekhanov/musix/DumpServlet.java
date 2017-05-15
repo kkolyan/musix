@@ -13,9 +13,9 @@ import java.io.IOException;
 public class DumpServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Repository repository = (Repository) req.getServletContext().getAttribute("repository");
+        Repository musix = (Repository) req.getServletContext().getAttribute("repository");
         resp.setContentType("text/javascript");
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().print(repository.getDump());
+        resp.getWriter().print(musix.getDump());
     }
 }

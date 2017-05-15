@@ -12,7 +12,7 @@ import java.io.IOException;
 public class RateServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Repository repository = (Repository) req.getServletContext().getAttribute("repository");
+        Musix musix = (Musix) req.getServletContext().getAttribute("musix");
         String userId = (String) req.getSession().getAttribute("userId");
         String track = req.getParameter("track");
         String notEnoughSkills = req.getParameter("notEnoughSkills");
@@ -23,7 +23,7 @@ public class RateServlet extends HttpServlet {
         opinion.setAttitude(Attitude.valueOf(attitude));
         opinion.setComment(comment);
         opinion.setNotEnoughSkills("on".equals(notEnoughSkills));
-        repository.addOpinion(userId, track, opinion);
+        musix.addOpinion(userId, track, opinion);
 
         resp.sendRedirect("opinions.jsp");
     }

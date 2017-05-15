@@ -18,15 +18,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>FixChart</servlet-name>
-        <servlet-class>com.nplekhanov.musix.FixChartServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>FixChart</servlet-name>
-        <url-pattern>/FixChart</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>Rate</servlet-name>
         <servlet-class>com.nplekhanov.musix.RateServlet</servlet-class>
     </servlet>
@@ -42,6 +33,15 @@
     <servlet-mapping>
         <servlet-name>Dump</servlet-name>
         <url-pattern>/Dump</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PersonalTrackRating</servlet-name>
+        <servlet-class>com.nplekhanov.musix.PersonalTrackRatingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PersonalTrackRating</servlet-name>
+        <url-pattern>/PersonalTrackRating</url-pattern>
     </servlet-mapping>
 
     <listener>

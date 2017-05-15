@@ -7,6 +7,15 @@ public class Opinion {
     private Attitude attitude;
     private boolean notEnoughSkills;
     private String comment;
+    private long rating;
+
+    public long getRating() {
+        return rating;
+    }
+
+    public void setRating(long rating) {
+        this.rating = rating;
+    }
 
     public Attitude getAttitude() {
         return attitude;

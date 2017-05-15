@@ -1,7 +1,6 @@
 package com.nplekhanov.musix;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -10,7 +9,6 @@ import java.util.stream.Collectors;
  */
 public class Database {
     private Collection<User> users;
-    private List<Chart> charts;
     private transient Map<String, User> indexedUsers;
     private transient Map<String, Band> indexedBands;
     private Collection<Band> bands;
@@ -38,14 +36,6 @@ public class Database {
 
     public void setUsers(Collection<User> users) {
         this.users = users;
-    }
-
-    public List<Chart> getCharts() {
-        return charts;
-    }
-
-    public void setCharts(List<Chart> charts) {
-        this.charts = charts;
     }
 
     public Collection<Band> getBands() {

@@ -30,7 +30,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Repository repository = (Repository) req.getServletContext().getAttribute("repository");
+        Musix musix = (Musix) req.getServletContext().getAttribute("musix");
 
         Map<String,String> authVars = new HashMap<String, String>();
         for (String var: "uid, first_name, last_name, photo, photo_rec, hash".split(", ")) {
@@ -51,9 +51,9 @@ public class LoginServlet extends HttpServlet {
         String hash = req.getParameter("hash");
 
         if (expectedHash.equals(hash) || req.getRemoteAddr().equals(devIp)) {
-            repository.addUser(userId, authVars.get("first_name") + " " + authVars.get("last_name"), authVars.get("photo"));
+            musix.addUser(userId, authVars.get("first_name") + " " + authVars.get("last_name"), authVars.get("photo"));
             req.getSession().setAttribute("userId", userId);
-            resp.sendRedirect("rate.jsp");
+            resp.sendRedirect("index.jsp");
         }
     }
 
