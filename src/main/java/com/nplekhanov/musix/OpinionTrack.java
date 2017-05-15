@@ -8,13 +8,22 @@ import java.util.Map;
 public class OpinionTrack {
     private String track;
     private Map<String,Opinion> opinionByUser;
-    private Map<User, Double> ratedWithinGroup;
+    private Map<User, Long> ratedWithinGroup;
+    private long positionInsideGroup;
 
-    public Map<User, Double> getRatedWithinGroup() {
+    public long getPositionInsideGroup() {
+        return positionInsideGroup;
+    }
+
+    public void setPositionInsideGroup(long positionInsideGroup) {
+        this.positionInsideGroup = positionInsideGroup;
+    }
+
+    public Map<User, Long> getRatedWithinGroup() {
         return ratedWithinGroup;
     }
 
-    public void setRatedWithinGroup(Map<User, Double> ratedWithinGroup) {
+    public void setRatedWithinGroup(Map<User, Long> ratedWithinGroup) {
         this.ratedWithinGroup = ratedWithinGroup;
     }
 

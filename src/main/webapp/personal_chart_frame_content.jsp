@@ -34,6 +34,34 @@
         NavigableSet<Integer> steps = new TreeSet<>();
         steps.addAll(Arrays.asList(1));
 
+        %>
+
+    <div>
+        <form action="PersonalTrackRating" style="display: inline;" method="post">
+            <input type="hidden" name="onlyDesired" value="true"/>
+            <input type="hidden" name="step" value="-1"/>
+            <input type="submit" value="-1 to desired"/>
+        </form>
+        <form action="PersonalTrackRating" style="display: inline;" method="post">
+            <input type="hidden" name="onlyDesired" value="true"/>
+            <input type="hidden" name="step" value="1"/>
+            <input type="submit" value="+1 to desired"/>
+        </form>
+    </div>
+    <div>
+        <form action="PersonalTrackRating" style="display: inline;" method="post">
+            <input type="hidden" name="allTracks" value="true"/>
+            <input type="hidden" name="step" value="-1"/>
+            <input type="submit" value="-1 to all"/>
+        </form>
+        <form action="PersonalTrackRating" style="display: inline;" method="post">
+            <input type="hidden" name="allTracks" value="true"/>
+            <input type="hidden" name="step" value="1"/>
+            <input type="submit" value="+1 to all"/>
+        </form>
+    </div>
+        <%
+
         for (Map.Entry<String, Opinion> track: orderedTracks) {
             %> <div  <% if (track.getKey().equals(request.getParameter("highlight"))) {%> style="font-weight: bold;" <%}%> ><%
             if (track.getValue().getAttitude() != Attitude.UNACCEPTABLE) {

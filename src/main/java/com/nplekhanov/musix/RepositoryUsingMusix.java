@@ -1,12 +1,6 @@
 package com.nplekhanov.musix;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -85,15 +79,7 @@ public class RepositoryUsingMusix implements Musix {
             }
             int i = 0;
             for (Opinion opinion: db.indexedUsers().get(userId).getOpinionByTrack().values()) {
-
-                if (opinion.getRating() < 0) {
-                    opinion.setRating(0);
-                    i ++;
-                }
-                if (opinion.getRating() > 3) {
-                    opinion.setRating(3);
-                    i ++;
-                }
+                fixRating(opinion);
             }
             if (i > 0) {
                 return true;
@@ -116,14 +102,46 @@ public class RepositoryUsingMusix implements Musix {
             User user = db.indexedUsers().get(userId);
             Opinion opinion = user.getOpinionByTrack().get(track);
             opinion.setRating(opinion.getRating() + step);
-            if (opinion.getRating() < 0) {
-                opinion.setRating(0);
-            }
-            if (opinion.getRating() > 3) {
-                opinion.setRating(3);
+            fixRating(opinion);
+            return true;
+        });
+    }
+
+    @Override
+    public void increaseTrackOrderOfDesired(String userId, int step) {
+        repository.change(db -> {
+            User user = db.indexedUsers().get(userId);
+            for (Opinion o: user.getOpinionByTrack().values()) {
+                if (o.getAttitude() == Attitude.DESIRED) {
+                    o.setRating(o.getRating() + step);
+                    fixRating(o);
+                }
             }
             return true;
         });
+    }
+
+    @Override
+    public void increaseTrackOrderOfAll(String userId, int step) {
+        repository.change(db -> {
+            User user = db.indexedUsers().get(userId);
+            for (Opinion o: user.getOpinionByTrack().values()) {
+                if (o.getAttitude() == Attitude.DESIRED || o.getAttitude() == Attitude.ACCEPTABLE) {
+                    o.setRating(o.getRating() + step);
+                    fixRating(o);
+                }
+            }
+            return true;
+        });
+    }
+
+    private void fixRating(Opinion o) {
+        if (o.getRating() < 0) {
+            o.setRating(0);
+        }
+        if (o.getRating() > 5) {
+            o.setRating(5);
+        }
     }
 
     private Collection<OpinionTrack> sortTracksWithOpinions(Collection<OpinionTrack> tracks, Collection<User> users) {
@@ -154,29 +172,44 @@ public class RepositoryUsingMusix implements Musix {
     private List<OpinionTrack> sortGroup(List<OpinionTrack> tracks, Collection<User> users) {
         for (OpinionTrack ot: tracks) {
             ot.setRatedWithinGroup(new HashMap<>());
-        }
-        for (User user: users) {
-            for (OpinionTrack ot: tracks) {
-                Opinion o = user.getOpinionByTrack().get(ot.getTrack());
-                double rating;
-                if (o != null) {
-                    rating = o.getRating();
-                } else {
-                    rating = 0.0;
-                }
-                ot.getRatedWithinGroup().put(user, rating);
-            }
-            double sum = tracks.stream()
-                    .mapToDouble(x -> x.getRatedWithinGroup().get(user)).sum();
-            if (sum > 0) {
-                for (OpinionTrack ot: tracks) {
-                    double normalized = tracks.size() * ot.getRatedWithinGroup().get(user) / sum;
-                    ot.getRatedWithinGroup().put(user, normalized);
-                }
+            for (User user: users) {
+                ot.getRatedWithinGroup().put(user, user.getOpinionByTrack().getOrDefault(ot.getTrack(), new Opinion()).getRating());
             }
         }
-        tracks.sort(Comparator.comparing(x -> -x.getRatedWithinGroup().values().stream().mapToDouble(Double::doubleValue).sum()));
-        return tracks;
+        Map<OpinionTrack, Collection<OpinionTrack>> subGroups = new TreeMap<>((o1, o2) -> {
+            LongSummaryStatistics stat = new LongSummaryStatistics();
+            for (User user: users) {
+                Map<String, Opinion> obt = user.getOpinionByTrack();
+                long c1 = obt.getOrDefault(o1.getTrack(), new Opinion()).getRating();
+                long c2 = obt.getOrDefault(o2.getTrack(), new Opinion()).getRating();
+                long diff = c2 - c1;
+                if (diff != 0) {
+                    diff = diff / Math.abs(diff);
+                }
+                stat.accept(diff);
+            }
+            if (stat.getAverage() > 0) {
+                return 1;
+            }
+            if (stat.getAverage() < 0) {
+                return -1;
+            }
+            return 0;
+        });
+        for (OpinionTrack track: tracks) {
+            subGroups.put(track, new ArrayList<>());
+        }
+        for (OpinionTrack track: tracks) {
+            subGroups.get(track).add(track);
+        }
+        int i = 0;
+        for (Collection<OpinionTrack> subGroup: subGroups.values()) {
+            i ++;
+            for (OpinionTrack ot: subGroup) {
+                ot.setPositionInsideGroup(i);
+            }
+        }
+        return subGroups.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     private Collection<OpinionTrack> aggregateTracksWithOpinions(Collection<User> users) {

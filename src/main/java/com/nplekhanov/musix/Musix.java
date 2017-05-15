@@ -20,4 +20,8 @@ public interface Musix {
     List<Map.Entry<String,Opinion>> getOrderedTracks(String userId);
 
     void increaseTrackOrder(String userId, String track, int step);
+
+    void increaseTrackOrderOfDesired(String userId, int step);
+
+    void increaseTrackOrderOfAll(String userId, int step);
 }

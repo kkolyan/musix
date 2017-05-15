@@ -49,7 +49,7 @@
     <table>
         <tr>
             <th>Трек</th>
-            <th>Желающих / Рейтинг</th>
+            <th title="Кол-во желающих / Позиция в группе с учетом рейтинга">#</th>
             <%
                 for (User u: users) {
                 %> <th> <img width="64" src="<%=u.getPhotoUrl()%>" title="<%=escapeHtml4(u.getFullName())%>"/> </th> <%
@@ -75,13 +75,11 @@
                 </td>
                 <% if (unacceptable == 0 && t.getOpinionByUser().size() == users.size()) {
                     Collection<String> ratedFullNames = new ArrayList<>();
-                    double subRate = 0;
                     for (User user: t.getRatedWithinGroup().keySet()) {
-                        double rate = t.getRatedWithinGroup().get(user);
-                        ratedFullNames.add(user.getFullName()+": "+ String.format("%.02f", rate));
-                        subRate += rate;
+                        long rate = t.getRatedWithinGroup().get(user);
+                        ratedFullNames.add(user.getFullName()+": "+ rate);
                     }
-                    %><td class="rate<%=desired%>" title="<%=String.join("\n", ratedFullNames)%>"><%=desired%> / <%=String.format("%.02f", subRate)%> </td> <%
+                    %><td class="rate<%=desired%>" title="Рейтинги:<%="\n"+String.join("\n", ratedFullNames)%>"><%=desired%> / <%=t.getPositionInsideGroup()%> </td> <%
                 } else {
                     %><td></td> <%
                 }%>
