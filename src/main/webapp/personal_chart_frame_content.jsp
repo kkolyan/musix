@@ -10,6 +10,7 @@
 <%@ page import="java.util.NavigableSet" %>
 <%@ page import="java.util.TreeSet" %>
 <%@ page import="java.util.Arrays" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <head>
     <link rel="stylesheet" href="common.css" type="text/css"/>
@@ -74,8 +75,8 @@
                     %>
                     <form action="PersonalTrackRating" style="display: inline;" method="post">
                         <input type="hidden" name="track" value="<%=escapeHtml4(track.getKey())%>"/>
-                        <input type="hidden" name="step" value="<%=step%>"/>
-                        <input type="submit" value="+<%=step%>"/>
+                        <input type="hidden" name="step" value="-<%=step%>"/>
+                        <input type="submit" value="-<%=step%>"/>
                     </form>
                     <%
                 }
@@ -90,8 +91,8 @@
                         %>
                         <form action="PersonalTrackRating" style="display: inline;" method="post">
                             <input type="hidden" name="track" value="<%=escapeHtml4(track.getKey())%>"/>
-                            <input type="hidden" name="step" value="-<%=step%>"/>
-                            <input type="submit" value="-<%=step%>"/>
+                            <input type="hidden" name="step" value="<%=step%>"/>
+                            <input type="submit" value="+<%=step%>"/>
                         </form>
                         <%
                     }
@@ -99,7 +100,7 @@
             }
             %>
 
-            <a target="_parent" name="<%=escapeHtml4(track.getKey())%>" class="<%=track.getValue().getAttitude()%>" href="rate.jsp?track=<%=escapeHtml4(track.getKey())%>">
+            <a target="_parent" name="<%=escapeHtml4(track.getKey())%>" class="<%=track.getValue().getAttitude()%>" href="rate.jsp?track=<%=URLEncoder.encode(track.getKey(), "utf-8")%>">
                 <%=escapeHtml4(track.getKey())%>
             </a>
 

@@ -65,6 +65,9 @@ th {
 .DESIRED {
     background-color: rgba(0, 255, 0, 0.25);
 }
+.DESIRED .stars {
+    color: rgb(0, 127, 0);
+}
 .ACCEPTABLE {
     background-color: rgba(0, 0, 255, 0.12);
 }
@@ -94,4 +97,33 @@ th {
 
 .rate5 {
     background-color:  rgba(0, 0, 0, 0.07);
+}
+form.mini-form {
+    padding: 0;
+    margin: 0 -5px 0 0;
+    display: inline;
+}
+.rating-button {
+    padding: 0 5px;
+    border: solid 1px #ccc;
+    background-color: #fff;
+    font-family: "Courier New", monospace;
+}
+.left-round {
+    margin: 0 0 0 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+.right-round {
+    margin: 0 0 0 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+td.opinions {
+    padding: 0;
+}
+
+.stars {
+    padding-left: 5px;
 }

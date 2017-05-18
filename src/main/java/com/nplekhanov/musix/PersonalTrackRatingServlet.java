@@ -20,6 +20,10 @@ public class PersonalTrackRatingServlet extends HttpServlet {
 
         String userId = (String) req.getSession().getAttribute("userId");
         Musix musix = (Musix) req.getServletContext().getAttribute("musix");
+        if (!musix.isFromDefaultBand(userId)) {
+            resp.sendError(403);
+            return;
+        }
 
         if (onlyDesired) {
             musix.increaseTrackOrderOfDesired(userId, Integer.parseInt(step));
@@ -33,6 +37,11 @@ public class PersonalTrackRatingServlet extends HttpServlet {
         if (track != null) {
             s = URLEncoder.encode(track, "utf-8");
         }
-        resp.sendRedirect("personal_chart_frame_content.jsp?highlight="+ s);
+        String source = req.getParameter("source");
+        if (source == null) {
+            resp.sendRedirect("personal_chart_frame_content.jsp?highlight="+ s);
+        } else {
+            resp.sendRedirect(source);
+        }
     }
 }

@@ -6,6 +6,7 @@
 <%@ page import="com.nplekhanov.musix.User" %>
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -57,6 +58,7 @@
             %>
         </tr>
         <%
+        String userId = (String) session.getAttribute("userId");
         for (OpinionTrack t: tracks) {
             int desired = 0;
             int unacceptable = 0;
@@ -71,7 +73,7 @@
             %>
             <tr>
                 <td style="text-align: left">
-                    <a href="rate.jsp?track=<%=escapeHtml4(t.getTrack())%>"><%=escapeHtml4(t.getTrack())%></a>
+                    <a href="rate.jsp?track=<%=URLEncoder.encode(t.getTrack(), "utf-8")%>"><%=escapeHtml4(t.getTrack())%></a>
                 </td>
                 <% if (unacceptable == 0 && t.getOpinionByUser().size() == users.size()) {
                     Collection<String> ratedFullNames = new ArrayList<>();
@@ -79,7 +81,8 @@
                         long rate = t.getRatedWithinGroup().get(user);
                         ratedFullNames.add(user.getFullName()+": "+ rate);
                     }
-                    %><td class="rate<%=desired%>" title="Рейтинги:<%="\n"+String.join("\n", ratedFullNames)%>"><%=desired%> / <%=t.getPositionInsideGroup()%> </td> <%
+                    %><!-- <td class="rate<%=desired%>" title="Рейтинги:<%="\n"+String.join("\n", ratedFullNames)%>" onclick="alert(this.title)"><%=desired%> / <%=t.getPositionInsideGroup()%> </td> --><%
+                    %><td class="rate<%=desired%>"><%=desired%> / <%=t.getPositionInsideGroup()%> </td> <%
                 } else {
                     %><td></td> <%
                 }%>
@@ -88,11 +91,30 @@
                         Opinion o = t.getOpinionByUser().get(user.getUid());
                         if (o != null) {
                             %>
-                                <td class="<%=o.getAttitude()%>" title="<%=attitudeLabel(o.getAttitude())%>">
-                                    <% if (o.isNotEnoughSkills()) {
-                                    %> <img src="Error-16.png" alt="(Too hard)" title="Недостаточно навыка"/> <%
-                                    }%>
+                                <td class="<%=o.getAttitude()%> opinions" title="<%=attitudeLabel(o.getAttitude())%>">
+                                    <% if (user.getUid().equals(userId) && userId.equals("37466302")) {%>
+                                        <form style="display: inline" action="PersonalTrackRating" class="mini-form" method="post">
+                                            <input type="hidden" name="track" value="<%=escapeHtml4(t.getTrack())%>">
+                                            <input type="hidden" name="step" value="-1">
+                                            <input type="hidden" name="source" value="<%=request.getRequestURI()%>">
+                                            <input type="submit" value="-" class="rating-button left-round"/>
+                                        </form>
+                                        <form style="display: inline" action="PersonalTrackRating" class="mini-form" method="post">
+                                            <input type="hidden" name="track" value="<%=escapeHtml4(t.getTrack())%>">
+                                            <input type="hidden" name="step" value="1">
+                                            <input type="hidden" name="source" value="<%=request.getRequestURI()%>">
+                                            <input type="submit" value="+" class="rating-button right-round"/>
+                                        </form>
+                                    <%}%>
+                                    <span class="stars"><%
+                                        for (int i = 0; i < o.getRating(); i ++) {
+                                    %>*<%
+                                        }
+                                    %></span>
                                     <%=o.getComment() == null ? "" : escapeHtml4(o.getComment())%>
+                                    <% if (o.isNotEnoughSkills()) {
+                                    %> <img src="Error-16.png" alt="(Too hard)" title="Недостаточно навыка" style="margin: 0; padding: 0;"/> <%
+                                    }%>
                                 </td>
                             <%
                         } else {

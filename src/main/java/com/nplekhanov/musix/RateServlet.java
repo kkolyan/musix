@@ -19,8 +19,15 @@ public class RateServlet extends HttpServlet {
         String comment = req.getParameter("comment");
         String attitude = req.getParameter("attitude");
 
+        if (!musix.isFromDefaultBand(userId)) {
+            resp.sendError(403);
+            return;
+        }
         Opinion opinion = new Opinion();
         opinion.setAttitude(Attitude.valueOf(attitude));
+        if (opinion.getAttitude() == Attitude.DESIRED) {
+            opinion.setRating(1);
+        }
         opinion.setComment(comment);
         opinion.setNotEnoughSkills("on".equals(notEnoughSkills));
         musix.addOpinion(userId, track, opinion);

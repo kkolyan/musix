@@ -135,6 +135,11 @@ public class RepositoryUsingMusix implements Musix {
         });
     }
 
+    @Override
+    public boolean isFromDefaultBand(String userId) {
+        return repository.read(db -> db.indexedBands().get(db.getDefaultBand()).getMembers().contains(userId));
+    }
+
     private void fixRating(Opinion o) {
         if (o.getRating() < 0) {
             o.setRating(0);

@@ -24,4 +24,6 @@ public interface Musix {
     void increaseTrackOrderOfDesired(String userId, int step);
 
     void increaseTrackOrderOfAll(String userId, int step);
+
+    boolean isFromDefaultBand(String userId);
 }
