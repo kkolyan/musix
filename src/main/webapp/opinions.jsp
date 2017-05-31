@@ -13,6 +13,37 @@
     <title>Мнения</title>
     <jsp:include page="mobile.jsp"/>
     <link rel="stylesheet" href="common.css" type="text/css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+        .comment-button:hover, .comment-button-all:hover {
+            cursor: pointer;
+        }
+
+        img.cell-img {
+            margin-top: -7px;
+            margin-right: 0;
+            margin-left: 0;
+            margin-bottom: -8px;
+            padding: 0;
+        }
+    </style>
+    <script>
+        var showAllComments = false;
+
+        $(document).ready(function() {
+            $(".comment-button").click(function() {
+                $(this).next().toggle();
+            });
+            $(".comment-button-all").click(function() {
+                showAllComments = ! showAllComments;
+                if (showAllComments) {
+                    $(".comment").show();
+                } else {
+                    $(".comment").hide();
+                }
+            });
+        });
+    </script>
 </head>
 <style>
 </style>
@@ -47,6 +78,7 @@
         <input type="submit" value="Добавить"/>
     </form>
 </div>
+    <img class="comment-button-all" src="chat-24.png" alt="показать/скрыть все комментарии" />
     <table>
         <tr>
             <th>Трек</th>
@@ -91,7 +123,7 @@
                         Opinion o = t.getOpinionByUser().get(user.getUid());
                         if (o != null) {
                             %>
-                                <td class="<%=o.getAttitude()%> opinions" title="<%=attitudeLabel(o.getAttitude())%>">
+                                <td class="<%=o.getAttitude()%> opinions" style="max-width: 200px" title="<%=attitudeLabel(o.getAttitude())%>">
                                     <% if (user.getUid().equals(userId) && userId.equals("37466302")) {%>
                                         <form style="display: inline" action="PersonalTrackRating" class="mini-form" method="post">
                                             <input type="hidden" name="track" value="<%=escapeHtml4(t.getTrack())%>">
@@ -111,10 +143,14 @@
                                     %>*<%
                                         }
                                     %></span>
-                                    <%=o.getComment() == null ? "" : escapeHtml4(o.getComment())%>
                                     <% if (o.isNotEnoughSkills()) {
-                                    %> <img src="Error-16.png" alt="(Too hard)" title="Недостаточно навыка" style="margin: 0; padding: 0;"/> <%
+                                    %> <img src="Error-25.png" class="cell-img" alt="(Too hard)" title="Недостаточно навыка" /> <%
                                     }%>
+                                    <%
+                                        if (o.getComment() != null && !o.getComment().trim().isEmpty()) {
+                                    %><img class="comment-button cell-img" src="chat-24.png" alt="comment" title="<%=escapeHtml4(o.getComment())%>"/><span style="display: none;" class="comment"><%=escapeHtml4(o.getComment())%></span>  <%
+                                    }
+                                %>
                                 </td>
                             <%
                         } else {
