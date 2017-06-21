@@ -1,4 +1,4 @@
-<%@ page import="com.nplekhanov.musix.User" %>
+<%@ page import="com.nplekhanov.musix.model.User" %>
 <%@ page import="com.nplekhanov.musix.Musix" %>
 <%@ page import="static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4" %>
 <%@ page import="com.nplekhanov.musix.AuthException" %>

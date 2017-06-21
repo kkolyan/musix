@@ -1,5 +1,11 @@
 package com.nplekhanov.musix;
 
+import com.nplekhanov.musix.model.Opinion;
+import com.nplekhanov.musix.model.OpinionTrack;
+import com.nplekhanov.musix.model.User;
+import com.nplekhanov.musix.model.tournament.Tournament;
+import com.nplekhanov.musix.model.tournament.TournamentStatus;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,4 +32,10 @@ public interface Musix {
     void increaseTrackOrderOfAll(String userId, int step);
 
     boolean isFromDefaultBand(String userId);
+
+    void startTournament(String name);
+
+    void makeChoice(String tournamentName, int tour, Collection<String> tracks);
+
+    Map<String, TournamentStatus> getTournaments();
 }

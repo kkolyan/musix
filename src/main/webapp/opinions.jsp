@@ -1,9 +1,9 @@
-<%@ page import="com.nplekhanov.musix.Attitude" %>
-<%@ page import="com.nplekhanov.musix.Opinion" %>
-<%@ page import="com.nplekhanov.musix.OpinionTrack" %>
+<%@ page import="com.nplekhanov.musix.model.Attitude" %>
+<%@ page import="com.nplekhanov.musix.model.Opinion" %>
+<%@ page import="com.nplekhanov.musix.model.OpinionTrack" %>
 <%@ page import="com.nplekhanov.musix.Musix" %>
 <%@ page import="static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4" %>
-<%@ page import="com.nplekhanov.musix.User" %>
+<%@ page import="com.nplekhanov.musix.model.User" %>
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.net.URLEncoder" %>
@@ -124,7 +124,7 @@
                         if (o != null) {
                             %>
                                 <td class="<%=o.getAttitude()%> opinions" style="max-width: 200px" title="<%=attitudeLabel(o.getAttitude())%>">
-                                    <% if (user.getUid().equals(userId) && userId.equals("37466302")) {%>
+                                    <% if (user.getUid().equals(userId)) {%>
                                         <form style="display: inline" action="PersonalTrackRating" class="mini-form" method="post">
                                             <input type="hidden" name="track" value="<%=escapeHtml4(t.getTrack())%>">
                                             <input type="hidden" name="step" value="-1">

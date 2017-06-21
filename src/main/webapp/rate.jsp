@@ -1,8 +1,8 @@
 <%@ page import="com.nplekhanov.musix.Musix" %>
-<%@ page import="com.nplekhanov.musix.User" %>
+<%@ page import="com.nplekhanov.musix.model.User" %>
 <%@ page import="static org.apache.commons.lang3.StringEscapeUtils.*" %>
-<%@ page import="com.nplekhanov.musix.Attitude" %>
-<%@ page import="com.nplekhanov.musix.Opinion" %>
+<%@ page import="com.nplekhanov.musix.model.Attitude" %>
+<%@ page import="com.nplekhanov.musix.model.Opinion" %>
 <%@ taglib prefix="mx" tagdir="/WEB-INF/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>

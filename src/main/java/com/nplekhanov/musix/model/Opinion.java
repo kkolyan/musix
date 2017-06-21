@@ -1,4 +1,4 @@
-package com.nplekhanov.musix;
+package com.nplekhanov.musix.model;
 
 /**
  * Created by nplekhanov on 5/13/2017.

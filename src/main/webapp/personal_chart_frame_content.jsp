@@ -1,11 +1,11 @@
 <%@ page import="com.nplekhanov.musix.Musix" %>
-<%@ page import="com.nplekhanov.musix.Opinion" %>
-<%@ page import="com.nplekhanov.musix.User" %>
+<%@ page import="com.nplekhanov.musix.model.Opinion" %>
+<%@ page import="com.nplekhanov.musix.model.User" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4" %>
 <%@ page import="java.util.Objects" %>
-<%@ page import="com.nplekhanov.musix.Attitude" %>
+<%@ page import="com.nplekhanov.musix.model.Attitude" %>
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.NavigableSet" %>
 <%@ page import="java.util.TreeSet" %>

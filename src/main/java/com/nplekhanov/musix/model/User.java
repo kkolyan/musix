@@ -1,4 +1,4 @@
-package com.nplekhanov.musix;
+package com.nplekhanov.musix.model;
 
 import java.util.Map;
 

@@ -1,6 +1,10 @@
-package com.nplekhanov.musix;
+package com.nplekhanov.musix.model;
 
+import com.nplekhanov.musix.model.tournament.Tournament;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -13,6 +17,15 @@ public class Database {
     private transient Map<String, Band> indexedBands;
     private Collection<Band> bands;
     private String defaultBand;
+    private List<Tournament> tournaments = new ArrayList<>();
+
+    public List<Tournament> getTournaments() {
+        return tournaments;
+    }
+
+    public void setTournaments(List<Tournament> tournaments) {
+        this.tournaments = tournaments;
+    }
 
     public Map<String,User> indexedUsers() {
         if (indexedUsers == null) {

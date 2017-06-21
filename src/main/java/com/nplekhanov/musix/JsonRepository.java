@@ -3,6 +3,7 @@ package com.nplekhanov.musix;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.nplekhanov.musix.model.Database;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

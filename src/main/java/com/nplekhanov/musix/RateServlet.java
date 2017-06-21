@@ -1,5 +1,8 @@
 package com.nplekhanov.musix;
 
+import com.nplekhanov.musix.model.Attitude;
+import com.nplekhanov.musix.model.Opinion;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

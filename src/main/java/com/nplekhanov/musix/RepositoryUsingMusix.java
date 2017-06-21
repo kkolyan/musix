@@ -1,5 +1,13 @@
 package com.nplekhanov.musix;
 
+import com.nplekhanov.musix.model.Attitude;
+import com.nplekhanov.musix.model.Opinion;
+import com.nplekhanov.musix.model.OpinionTrack;
+import com.nplekhanov.musix.model.User;
+import com.nplekhanov.musix.model.tournament.Tour;
+import com.nplekhanov.musix.model.tournament.Tournament;
+import com.nplekhanov.musix.model.tournament.TournamentStatus;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -234,5 +242,50 @@ public class RepositoryUsingMusix implements Musix {
             });
         }
         return map.values();
+    }
+
+    @Override
+    public void startTournament(String name) {
+        repository.change(db -> {
+            if (db.getTournaments().stream().anyMatch(x -> x.getName().equals(name))) {
+                throw new IllegalStateException("tournament name is already used");
+            }
+            Tournament tournament = new Tournament();
+            tournament.getTours().add(new Tour());
+            db.getTournaments().add(tournament);
+            return true;
+        });
+    }
+
+    @Override
+    public void makeChoice(String tournamentName, int tour, Collection<String> tracks) {
+
+    }
+
+    @Override
+    public Map<String, TournamentStatus> getTournaments() {
+        String userId = "";
+        return repository.read(db -> db.getTournaments().stream()
+                .map(x -> {
+                    TournamentStatus s = new TournamentStatus();
+                    s.setName(x.getName());
+                    s.setFinished(
+                            x.getTours()
+                                    .get(x.getTours().size() - 1)
+                                    .getTracksByUser()
+                                    .values()
+                                    .stream().allMatch(y -> y.size() == 1)
+                    );
+                    s.setTour(x.getTours().size() - 1);
+                    s.setSelectedTracks(x.getTours().get(x.getTours().size() - 1).getTracksByUser().getOrDefault(userId, Collections.emptyList()));
+
+
+                    if (x.getTours().size() == 1) {
+                    } else {
+
+                    }
+                    return s;
+                })
+                .collect(Collectors.toMap(TournamentStatus::getName, x -> x)));
     }
 }
